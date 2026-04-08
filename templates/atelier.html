@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Atelier — Vent & Précipitations Paris{% endblock %}
+
+{% block head %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 320px;
+  }
+  .chart-card h3 {
+    color: #a8b2c1;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .loading { text-align: center; color: #a8b2c1; padding: 40px; font-size: 0.9rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="page-title">🌬️ Vent & Précipitations à Paris</p>
+<p class="page-subtitle">Données météo en temps réel · open-meteo.com</p>
+
+<div class="charts-grid">
+  <div class="chart-card">
+    <h3>Vitesse du vent (km/h)</h3>
+    <div id="chart_vent"><div class="loading">⏳ Chargement...</div></div>
+  </div>
+  <div class="chart-card">
+    <h3>Précipitations (mm)</h3>
+    <div id="chart_pluie"><div class="loading">⏳ Chargement...</div></div>
+  </div>
+</div>
+
+<script>
+  google.charts.load('current', { packages: ['corechart', 'bar'] });
+  google.charts.setOnLoadCallback(fetchAndDraw);
+
+  async function fetchAndDraw() {
+    try {
+      const res = await fetch('/atelier');
+      const data = await res.json();
+      const times = data.time.map(t => t.split('T')[1].substring(0, 5));
+
+      // ── Graphique vent : AreaChart ──
+      const ventTable = new google.visualization.DataTable();
+      ventTable.addColumn('string', 'Heure');
+      ventTable.addColumn('number', 'Vent (km/h)');
+      times.forEach((t, i) => ventTable.addRow([t, data.windspeed_10m[i]]));
+
+      const ventOptions = {
+        backgroundColor: 'transparent',
+        hAxis: { textStyle: { color: '#a8b2c1' }, gridlines: { color: 'transparent' }, showTextEvery: 6 },
+        vAxis: { textStyle: { color: '#a8b2c1' }, gridlines: { color: 'rgba(255,255,255,0.05)' } },
+        legend: { position: 'none' },
+        colors: ['#53d8fb'],
+        lineWidth: 2,
+        areaOpacity: 0.2,
+        chartArea: { left: 45, right: 10, top: 10, bottom: 40, width: '100%', height: '85%' }
+      };
+
+      document.getElementById('chart_vent').innerHTML = '';
+      new google.visualization.AreaChart(document.getElementById('chart_vent')).draw(ventTable, ventOptions);
+
+      // ── Graphique pluie : ColumnChart ──
+      const pluieTable = new google.visualization.DataTable();
+      pluieTable.addColumn('string', 'Heure');
+      pluieTable.addColumn('number', 'Pluie (mm)');
+      times.forEach((t, i) => pluieTable.addRow([t, data.precipitation[i]]));
+
+      const pluieOptions = {
+        backgroundColor: 'transparent',
+        hAxis: { textStyle: { color: '#a8b2c1' }, gridlines: { color: 'transparent' }, showTextEvery: 6 },
+        vAxis: { textStyle: { color: '#a8b2c1' }, gridlines: { color: 'rgba(255,255,255,0.05)' }, minValue: 0 },
+        legend: { position: 'none' },
+        colors: ['#4a90d9'],
+        bar: { groupWidth: '70%' },
+        chartArea: { left: 45, right: 10, top: 10, bottom: 40, width: '100%', height: '85%' }
+      };
+
+      document.getElementById('chart_pluie').innerHTML = '';
+      new google.visualization.ColumnChart(document.getElementById('chart_pluie')).draw(pluieTable, pluieOptions);
+
+    } catch (e) {
+      document.getElementById('chart_vent').innerHTML = '<div class="loading">❌ Erreur.</div>';
+      document.getElementById('chart_pluie').innerHTML = '<div class="loading">❌ Erreur.</div>';
+    }
+  }
+</script>
+{% endblock %}
