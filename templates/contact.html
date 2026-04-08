@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Contact — Atelier Métriques{% endblock %}
+
+{% block head %}
+<style>
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 640px) { .contact-grid { grid-template-columns: 1fr; } }
+  .info-block {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .info-block h3 {
+    color: #e94560;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    color: #ccc;
+    font-size: 0.95rem;
+  }
+  .info-row .icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(233,69,96,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .info-row span { color: #a8b2c1; font-size: 0.82rem; display: block; }
+  .form-group { margin-bottom: 16px; }
+  label {
+    display: block;
+    color: #a8b2c1;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  input, textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 11px 13px;
+    color: #eee;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: #e94560; }
+  textarea { resize: vertical; min-height: 100px; }
+  .btn-send {
+    width: 100%;
+    padding: 13px;
+    background: #e94560;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-send:hover { background: #c73652; transform: translateY(-1px); }
+  #confirm-msg {
+    display: none;
+    background: rgba(46,213,115,0.12);
+    border: 1px solid rgba(46,213,115,0.35);
+    border-radius: 8px;
+    padding: 12px;
+    color: #2ed573;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="page-title">📋 Contact</p>
+<p class="page-subtitle">Yahia Mounim — Atelier Métriques 2026</p>
+
+<div class="contact-grid">
+  <div class="info-block">
+    <h3>Informations</h3>
+    <div class="info-row">
+      <div class="icon">👤</div>
+      <div><strong>Yahia Mounim</strong><span>Étudiant</span></div>
+    </div>
+    <div class="info-row">
+      <div class="icon">✉️</div>
+      <div><strong>yahiamounim@gmail.com</strong><span>Email</span></div>
+    </div>
+    <div class="info-row">
+      <div class="icon">🏫</div>
+      <div><strong>ISEP</strong><span>École</span></div>
+    </div>
+    <div class="info-row">
+      <div class="icon">💻</div>
+      <div><strong>Python / Flask</strong><span>Technologies</span></div>
+    </div>
+    <div class="info-row">
+      <div class="icon">📍</div>
+      <div><strong>Paris, France</strong><span>Localisation</span></div>
+    </div>
+  </div>
+
+  <div class="info-block">
+    <h3>Envoyer un message</h3>
+    <form id="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" placeholder="Votre nom" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="votre@email.com" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" placeholder="Votre message..." required></textarea>
+      </div>
+      <button class="btn-send" type="submit">Envoyer ✉️</button>
+      <div id="confirm-msg">✅ Message envoyé !</div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    document.getElementById('confirm-msg').style.display = 'block';
+    document.getElementById('contact-form').reset();
+    setTimeout(() => { document.getElementById('confirm-msg').style.display = 'none'; }, 3500);
+  }
+</script>
+{% endblock %}

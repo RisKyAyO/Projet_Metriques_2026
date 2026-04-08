@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Atelier Métriques{% endblock %}</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        color: #eee;
+      }
+      nav {
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(233,69,96,0.3);
+        padding: 14px 32px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      nav .brand {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #e94560;
+        letter-spacing: 2px;
+        text-decoration: none;
+        margin-right: auto;
+      }
+      nav a { color: #a8b2c1; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+      nav a:hover { color: #e94560; }
+      main { max-width: 960px; margin: 40px auto; padding: 0 24px; }
+      .page-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #e94560;
+        margin-bottom: 6px;
+        letter-spacing: 2px;
+      }
+      .page-subtitle { color: #a8b2c1; margin-bottom: 28px; font-size: 0.9rem; }
+      footer { text-align: center; padding: 24px; color: #555; font-size: 0.8rem; margin-top: 48px; }
+    </style>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <nav>
+      <a class="brand" href="/">⚡ MÉTRIQUES</a>
+      <a href="/contact">Contact</a>
+      <a href="/temperatures">Températures</a>
+      <a href="/histogramme">Histogramme</a>
+      <a href="/paris">API JSON</a>
+    </nav>
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+    <footer>Atelier Métriques — Yahia Mounim</footer>
+  </body>
+</html>

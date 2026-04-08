@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Températures Paris{% endblock %}
+
+{% block head %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+  #chart_div {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 420px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .value { font-size: 2rem; font-weight: 700; color: #e94560; }
+  .stat-card .label { font-size: 0.78rem; color: #a8b2c1; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+  .loading { text-align: center; color: #a8b2c1; padding: 60px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<p class="page-title">📈 Températures à Paris</p>
+<p class="page-subtitle">Données en temps réel · open-meteo.com</p>
+
+<div class="stats-row">
+  <div class="stat-card"><div class="value" id="stat-min">—</div><div class="label">Min (°C)</div></div>
+  <div class="stat-card"><div class="value" id="stat-moy">—</div><div class="label">Moyenne (°C)</div></div>
+  <div class="stat-card"><div class="value" id="stat-max">—</div><div class="label">Max (°C)</div></div>
+</div>
+
+<div id="chart_div"><div class="loading">⏳ Chargement...</div></div>
+
+<script>
+  google.charts.load('current', { packages: ['corechart'] });
+  google.charts.setOnLoadCallback(fetchAndDraw);
+
+  async function fetchAndDraw() {
+    try {
+      const res = await fetch('/paris');
+      const data = await res.json();
+      const times = data.time;
+      const temps = data.temperature_2m;
+
+      const min = Math.min(...temps).toFixed(1);
+      const max = Math.max(...temps).toFixed(1);
+      const moy = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+
+      document.getElementById('stat-min').textContent = min + '°';
+      document.getElementById('stat-max').textContent = max + '°';
+      document.getElementById('stat-moy').textContent = moy + '°';
+
+      const table = new google.visualization.DataTable();
+      table.addColumn('string', 'Heure');
+      table.addColumn('number', 'Température (°C)');
+      times.forEach((t, i) => table.addRow([t.split('T')[1].substring(0, 5), temps[i]]));
+
+      const options = {
+        title: "Températures horaires — Paris",
+        titleTextStyle: { color: '#eee', fontSize: 14 },
+        backgroundColor: 'transparent',
+        hAxis: {
+          title: 'Heure',
+          titleTextStyle: { color: '#a8b2c1' },
+          textStyle: { color: '#a8b2c1' },
+          gridlines: { color: 'transparent' },
+          showTextEvery: 4
+        },
+        vAxis: {
+          title: 'Température (°C)',
+          titleTextStyle: { color: '#a8b2c1' },
+          textStyle: { color: '#a8b2c1' },
+          gridlines: { color: 'rgba(255,255,255,0.05)' }
+        },
+        legend: { position: 'none' },
+        colors: ['#e94560'],
+        lineWidth: 3,
+        pointSize: 4,
+        curveType: 'function',
+        chartArea: { left: 60, right: 20, top: 40, bottom: 60, width: '100%', height: '80%' }
+      };
+
+      document.getElementById('chart_div').innerHTML = '';
+      new google.visualization.LineChart(document.getElementById('chart_div')).draw(table, options);
+    } catch (e) {
+      document.getElementById('chart_div').innerHTML = '<div class="loading">❌ Erreur de chargement.</div>';
+    }
+  }
+</script>
+{% endblock %}
